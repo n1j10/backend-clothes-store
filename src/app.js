@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 if (config.env === "development") app.use(morgan("dev"));
 
 // Uploaded product images.
-app.use(`/${config.uploads.dir}`, express.static(path.resolve(config.uploads.dir)));
+if (!process.env.VERCEL) app.use(`/${config.uploads.dir}`, express.static(path.resolve(config.uploads.dir)));
 
 app.use("/api", routes);
 
