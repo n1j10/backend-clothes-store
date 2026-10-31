@@ -27,7 +27,11 @@ const errorHandler = (error, req, res, next) => {
     message = "Record already exists";
   }
 
-  if (statusCode === 500) console.error(error);
+  if (statusCode >= 500) {
+    console.error(error);
+    // Never leak internal error details (SQL, stack, paths) to clients in production.
+    if (config.env === "production" && !error.isOperational) message = "Internal server error";
+  }
 
   res.status(statusCode).json({
     success: false,

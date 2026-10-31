@@ -11,7 +11,7 @@ const authenticate = async (req, res, next) => {
       throw ApiError.unauthorized("Login required");
     }
 
-    const payload = jwt.verify(header.slice(7), config.jwt.secret);
+    const payload = jwt.verify(header.slice(7), config.jwt.secret, { algorithms: ["HS256"] });
     const user = await userModel.findById(payload.sub);
     if (!user) throw ApiError.unauthorized("Login required");
 
@@ -39,7 +39,7 @@ const optionalAuth = async (req, res, next) => {
   if (!header.startsWith("Bearer ")) return next();
 
   try {
-    const payload = jwt.verify(header.slice(7), config.jwt.secret);
+    const payload = jwt.verify(header.slice(7), config.jwt.secret, { algorithms: ["HS256"] });
     req.user = await userModel.findById(payload.sub);
   } catch {
     req.user = undefined;

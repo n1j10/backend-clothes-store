@@ -1,7 +1,53 @@
-# Furniture Store API (Express)
+<div align="center">
 
-REST API ported from the Next.js server actions in
-[`utils/actions`](https://github.com/n1j10/furniture-store/tree/main/utils/actions).
+# 👕 Clothes Store API
+
+### Fashion e-commerce REST API with sizes, colors and Vercel Blob storage
+
+![Node.js](https://img.shields.io/badge/Node.js-24-5FA04E?style=for-the-badge&logo=nodedotjs&logoColor=white) ![Express](https://img.shields.io/badge/Express-4-000000?style=for-the-badge&logo=express&logoColor=white) ![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) ![Zod](https://img.shields.io/badge/Zod-validation-3E67B1?style=for-the-badge&logo=zod&logoColor=white) ![JWT](https://img.shields.io/badge/JWT-auth-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white) ![Vercel](https://img.shields.io/badge/Vercel-deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)
+
+**[📦 Source](https://github.com/n1j10/backend-clothes-store)**
+
+</div>
+
+---
+
+## ✨ Overview
+
+A REST API for a clothing store: products with **size and color variants**, a separate cart line per variant, orders with tax and shipping, reviews and favorites. Images go to **Vercel Blob** in production and to local disk in development.
+
+The code follows a **layered architecture** (routes → middlewares → controllers → services → models → Prisma), which keeps business logic testable and keeps controllers out of the database. It runs as a normal server locally and as a **Vercel serverless function** in production (`api/index.js`).
+
+```mermaid
+flowchart LR
+  C[Client] --> MW[helmet · CORS · rate limit]
+  MW --> R[routes]
+  R --> V[validate · Zod]
+  V --> A[auth]
+  A --> CT[controllers]
+  CT --> S[services]
+  S --> M[models]
+  M --> DB[(PostgreSQL)]
+  S --> ST[Vercel Blob]
+```
+
+## 🔐 Security
+
+Security was designed in from the start:
+
+| Area | Implementation |
+| --- | --- |
+| Authentication | JWT (HS256 pinned) with bcrypt-hashed passwords. The user is reloaded from the database on every request; admin routes use role-based `requireAdmin` |
+| Rate limiting | Global limit of 300 requests per minute per IP, plus a strict limit on login and register (10 per 15 minutes) against brute force |
+| Uploads | Explicit image MIME allow-list (JPEG, PNG, WebP, GIF, AVIF; **SVG is rejected**), 1 MB limit, server-generated file names and extensions |
+| Validation | Zod validates body, query and params; cart quantities must be 1–100 |
+| Hardening | `helmet` headers, body size limits, `trust proxy` for correct client IPs, `X-Powered-By` disabled |
+| Error handling | One central error handler; internal errors are never shown to clients in production |
+| Ownership | Users can only delete their own reviews, and each user gets one review per product |
+
+> Secrets are stored only in environment variables. `.env*` is git-ignored, and `.env.example` contains placeholders only.
+
+---
 
 ## Layers
 
@@ -81,3 +127,11 @@ logged-in user. A user can review a product once.
 ```bash
 npm test
 ```
+
+## 👤 Author
+
+**n1j10**, full-stack engineer (Next.js · TypeScript · Node.js · PostgreSQL)
+
+[![GitHub](https://img.shields.io/badge/GitHub-n1j10-181717?style=for-the-badge&logo=github)](https://github.com/n1j10)
+
+> If you find this project useful, a ⭐ on the repo is appreciated.
