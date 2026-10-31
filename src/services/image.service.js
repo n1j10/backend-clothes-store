@@ -2,6 +2,7 @@ const fs = require("node:fs/promises");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const config = require("../config");
+const { extensionFor } = require("../middlewares/upload.middleware");
 
 // Serverless hosts (Vercel) have a read-only, ephemeral filesystem, so images go to
 // Vercel Blob when BLOB_READ_WRITE_TOKEN is set; otherwise they are stored on disk.
@@ -10,7 +11,7 @@ const useBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 const toPublicUrl = (filename) => `${config.uploads.publicUrl}/${config.uploads.dir}/${filename}`;
 
 const saveImage = async (file) => {
-  const filename = `${crypto.randomUUID()}${path.extname(file.originalname)}`;
+  const filename = `${crypto.randomUUID()}${extensionFor(file.mimetype)}`;
 
   if (useBlob()) {
     const { put } = require("@vercel/blob");

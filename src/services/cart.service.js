@@ -56,7 +56,7 @@ const addItem = async (userId, { productId, amount, size, color }) => {
 
   if (existingItem) {
     await cartModel.updateItem(existingItem.id, cart.id, {
-      amount: existingItem.amount + amount,
+      amount: Math.min(existingItem.amount + amount, 100),
     });
   } else {
     await cartModel.createItem({ cartId: cart.id, productId, amount, size, color });
